@@ -18,8 +18,7 @@ function! bufexport#parser#parse_current_buffer()
 
 		" Insert line number
 		if &number
-			call insert(tokens, s:generate_number(lnum), 0)
-			call insert(tokens, s:token(' ', 'Normal'), 1)
+			call insert(tokens, s:lnum_token(lnum), 0)
 		endif
 
 		call add(result, tokens)
@@ -80,10 +79,10 @@ function! s:syn_name(lnum, col)
 	return synIDattr(synID(a:lnum, a:col, 'gui'), 'name')
 endfunction
 
-function! s:generate_number(lnum)
+function! s:lnum_token(lnum)
 	let max_len = strlen(string(s:max_lnum))
-	let pad = max_len - strlen(string(a:lnum))
-	let text = repeat(' ', pad) . string(a:lnum)
+	let pad = min([max_len - strlen(string(a:lnum)), 3])
+	let text = repeat(' ', pad) . string(a:lnum) . ' '
 
 	return s:token(text, 'LineNr')
 endfunction
