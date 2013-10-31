@@ -14,7 +14,16 @@ function! bufexport#parser#parse_current_buffer()
 	let s:max_lnum = line('$')
 	let lnum = 1
 	while lnum <= s:max_lnum
-		call add(result, s:parse_line(lnum))
+		let tokens = s:parse_line(lnum)
+
+		" Insert line number
+		if &number
+			call insert(tokens, s:generate_number(lnum), 0)
+			call insert(tokens, s:token(' ', 'Normal'), 1)
+		endif
+
+		call add(result, tokens)
+
 		let lnum += 1
 	endwhile
 
@@ -22,6 +31,10 @@ function! bufexport#parser#parse_current_buffer()
 endfunction
 
 function! s:parse_line(lnum)
+	if strlen(getline(a:lnum)) == 0
+		return []
+	endif
+
 	let result = []
 
 	" Move cursor to beginning of the target line
@@ -58,12 +71,6 @@ function! s:parse_line(lnum)
 
 	if strlen(text) > 0
 		call add(result, s:token(text, cur_syn))
-	endif
-
-	" Insert line number
-	if &number
-		call insert(result, s:generate_number(a:lnum), 0)
-		call insert(result, s:token(' ', 'Normal'), 1)
 	endif
 
 	return result
