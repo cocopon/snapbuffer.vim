@@ -6,25 +6,52 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
+function! s:prepare()
+	set conceallevel=1
+	normal! zR
+endfunction
+
+
 function! bufexport#parser#parse_current_buffer()
 	let result = []
 
-	normal! zR
+	let listchars = s:parse_listchars()
+	let needs_number = &number
+	let needs_eol = exists('listchars.eol')
+
+	call s:prepare()
 
 	let s:max_lnum = line('$')
 	let lnum = 1
 	while lnum <= s:max_lnum
 		let tokens = s:parse_line(lnum)
 
-		" Insert line number
-		if &number
+		" TODO: Replace \t with listchars:tab
+
+		if needs_number
 			call insert(tokens, s:lnum_token(lnum), 0)
+		endif
+
+		if needs_eol
+			call add(tokens, s:token(listchars.eol, 'NonText'))
 		endif
 
 		call add(result, tokens)
 
 		let lnum += 1
 	endwhile
+
+	return result
+endfunction
+
+function! s:parse_listchars()
+	let result = {}
+
+	let listchars = split(&listchars, ',')
+	for listchar in listchars
+		let comps = split(listchar, ':')
+		let result[comps[0]] = comps[1]
+	endfor
 
 	return result
 endfunction
@@ -77,6 +104,10 @@ endfunction
 
 function! s:syn_name(lnum, col)
 	return synIDattr(synID(a:lnum, a:col, 'gui'), 'name')
+endfunction
+
+function! s:concealed(lnum, col)
+	return synconcealed(a:lnum, a:col)[0]
 endfunction
 
 function! s:lnum_token(lnum)
