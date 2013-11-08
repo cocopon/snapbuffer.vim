@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! bufexport#parser#new()
+function! snapbuffer#parser#new()
 	let parser = {}
 
 	function! parser.prepare_() dict
@@ -16,7 +16,7 @@ function! bufexport#parser#new()
 		let self.listchars_ = s:parse_listchars()
 		let self.needs_number_ = &number
 		let self.needs_eol_ = (strlen(get(self.listchars_, 'eol', '')) > 0)
-		let self.line_parser_ = bufexport#line_parser#new(self.listchars_)
+		let self.line_parser_ = snapbuffer#line_parser#new(self.listchars_)
 	endfunction
 
 	function! parser.restore_() dict
@@ -36,18 +36,18 @@ function! bufexport#parser#new()
 
 			if self.needs_number_
 				let lnum_text = s:emulate_lnum(lnum, self.max_lnum_)
-				call insert(tokens, bufexport#token#new(lnum_text, 'LineNr'), 0)
+				call insert(tokens, snapbuffer#token#new(lnum_text, 'LineNr'), 0)
 			endif
 
 			if foldclosed(lnum) > 0
 				let fold_text = s:emulate_folding(lnum, max_col)
-				call add(tokens, bufexport#token#new(fold_text, 'Folded'))
+				call add(tokens, snapbuffer#token#new(fold_text, 'Folded'))
 				let lnum = foldclosedend(lnum)
 			else
 				call extend(tokens, self.line_parser_.parse(lnum))
 
 				if self.needs_eol_
-					call add(tokens, bufexport#token#new(self.listchars_.eol, 'NonText'))
+					call add(tokens, snapbuffer#token#new(self.listchars_.eol, 'NonText'))
 				endif
 			endif
 

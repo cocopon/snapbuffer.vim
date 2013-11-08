@@ -14,7 +14,7 @@ let s:special_chars = [
 			\ ]
 
 
-function! bufexport#exporter#html#export(data)
+function! snapbuffer#exporter#html#export(data)
 	let result = []
 
 	for tokens in a:data

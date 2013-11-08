@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! bufexport#exporter#group_name#export(data)
+function! snapbuffer#exporter#group_name#export(data)
 	let result = {}
 
 	for tokens in a:data

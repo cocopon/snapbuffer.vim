@@ -6,8 +6,8 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! bufexport#export(...)
-  let parser = bufexport#parser#new()
+function! snapbuffer#export(...)
+  let parser = snapbuffer#parser#new()
 	let data = parser.parse()
 
 	let exporter = 'html'
@@ -15,7 +15,7 @@ function! bufexport#export(...)
 		let exporter = a:1
 	end
 
-	let func = printf('bufexport#exporter#%s#export', exporter)
+	let func = printf('snapbuffer#exporter#%s#export', exporter)
 	try
 		let text = call(func, [data])
 	catch /:E117:/

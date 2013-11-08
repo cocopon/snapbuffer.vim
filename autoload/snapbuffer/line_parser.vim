@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! bufexport#line_parser#new(listchars)
+function! snapbuffer#line_parser#new(listchars)
 	let parser = {}
 
 	let parser.listchars_ = a:listchars
@@ -26,7 +26,7 @@ function! bufexport#line_parser#new(listchars)
 			return
 		endif
 
-		let token = bufexport#token#new(self.token_text_, self.cur_syn_)
+		let token = snapbuffer#token#new(self.token_text_, self.cur_syn_)
 		call add(self.result_, token)
 	endfunction
 

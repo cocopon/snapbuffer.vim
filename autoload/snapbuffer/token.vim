@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! bufexport#token#new(text, name)
+function! snapbuffer#token#new(text, name)
 	return {
 				\ 'text': a:text,
 				\ 'name': a:name
