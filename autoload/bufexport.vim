@@ -7,7 +7,8 @@ set cpo&vim
 
 
 function! bufexport#export(...)
-	let s:data = bufexport#parser#parse_current_buffer()
+  let parser = bufexport#parser#new()
+	let data = parser.parse()
 
 	let exporter = 'html'
 	if a:0 >= 1
@@ -16,7 +17,7 @@ function! bufexport#export(...)
 
 	let func = printf('bufexport#exporter#%s#export', exporter)
 	try
-		let text = call(func, [s:data])
+		let text = call(func, [data])
 	catch /:E117:/
 		" E117: Unknown function
 		echoerr printf('Exporter not found: %s', exporter)
