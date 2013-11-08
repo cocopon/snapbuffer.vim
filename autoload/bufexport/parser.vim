@@ -11,9 +11,7 @@ function! bufexport#parser#new()
 
 	function! parser.prepare_() dict
 		" TODO: Save current settings
-
 		set conceallevel=1
-		normal! zR
 
 		let self.listchars_ = s:parse_listchars()
 		let self.needs_number_ = &number
@@ -26,6 +24,7 @@ function! bufexport#parser#new()
 	endfunction
 
 	function! parser.parse() dict
+		let max_col = winwidth(0)
 		let result = []
 
 		call self.prepare_()
@@ -33,15 +32,23 @@ function! bufexport#parser#new()
 		let self.max_lnum_ = line('$')
 		let lnum = 1
 		while lnum <= self.max_lnum_
-			let tokens = self.line_parser_.parse(lnum)
+			let tokens = []
 
 			if self.needs_number_
 				let lnum_text = s:emulate_lnum(lnum, self.max_lnum_)
 				call insert(tokens, bufexport#token#new(lnum_text, 'LineNr'), 0)
 			endif
 
-			if self.needs_eol_
-				call add(tokens, bufexport#token#new(self.listchars_.eol, 'NonText'))
+			if foldclosed(lnum) > 0
+				let fold_text = s:emulate_folding(lnum, max_col)
+				call add(tokens, bufexport#token#new(fold_text, 'Folded'))
+				let lnum = foldclosedend(lnum)
+			else
+				call extend(tokens, self.line_parser_.parse(lnum))
+
+				if self.needs_eol_
+					call add(tokens, bufexport#token#new(self.listchars_.eol, 'NonText'))
+				endif
 			endif
 
 			call add(result, tokens)
@@ -75,6 +82,13 @@ function! s:emulate_lnum(lnum, max_lnum)
 	let max_len = strlen(string(a:max_lnum))
 	let pad = min([max_len - strlen(string(a:lnum)), 3])
 	return repeat(' ', pad) . string(a:lnum) . ' '
+endfunction
+
+
+function! s:emulate_folding(lnum, max_col)
+	let fold_text = foldtextresult(a:lnum)
+	let separator = repeat('-', a:max_col - strdisplaywidth(fold_text))
+	return fold_text . separator
 endfunction
 
 
