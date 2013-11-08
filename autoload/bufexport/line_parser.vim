@@ -11,7 +11,7 @@ function! bufexport#line_parser#new(listchars)
 
 	let parser.listchars_ = a:listchars
 
-	function! parser.reset_(lnum)
+	function! parser.reset_(lnum) dict
 		let self.result_ = []
 		let self.token_text_ = ''
 		let self.cur_syn_ = s:syn_name(a:lnum, 1)
@@ -21,7 +21,7 @@ function! bufexport#line_parser#new(listchars)
 		normal! 0
 	endfunction
 
-	function! parser.publish_token_()
+	function! parser.publish_token_() dict
 		if strlen(self.token_text_) == 0
 			return
 		endif
@@ -30,7 +30,7 @@ function! bufexport#line_parser#new(listchars)
 		call add(self.result_, token)
 	endfunction
 
-	function! parser.prepare_for_next_syntax_(syntax)
+	function! parser.prepare_for_next_syntax_(syntax) dict
 		let self.cur_syn_ = a:syntax
 		let self.token_text_ = ''
 	endfunction
