@@ -9,17 +9,17 @@ set cpo&vim
 function! s:prepare()
 	set conceallevel=1
 	normal! zR
+	let s:listchars = s:parse_listchars()
 endfunction
 
 
 function! bufexport#parser#parse_current_buffer()
 	let result = []
 
-	let listchars = s:parse_listchars()
-	let needs_number = &number
-	let needs_eol = exists('listchars.eol')
-
 	call s:prepare()
+
+	let needs_number = &number
+	let needs_eol = (strlen(get(s:listchars, 'eol', '')) > 0)
 
 	let s:max_lnum = line('$')
 	let lnum = 1
@@ -33,7 +33,7 @@ function! bufexport#parser#parse_current_buffer()
 		endif
 
 		if needs_eol
-			call add(tokens, s:token(listchars.eol, 'NonText'))
+			call add(tokens, s:token(s:listchars.eol, 'NonText'))
 		endif
 
 		call add(result, tokens)
@@ -63,12 +63,14 @@ function! s:parse_line(lnum)
 
 	let result = []
 
+	let tab = get(s:listchars, 'tab', '')
+
 	" Move cursor to beginning of the target line
 	execute printf('normal! %dG', a:lnum)
 	normal! 0
 
-	let max_col = col('$') - 1
 	let col = 1
+	let prev_text_width = 0
 	let text = ''
 	let cur_syn = s:syn_name(a:lnum, 1)
 
@@ -83,7 +85,16 @@ function! s:parse_line(lnum)
 		" Append a character under cursor
 		normal! vy
 		let ch = getreg('"')
-		let text .= ch
+
+		let text_width = strdisplaywidth(text . ch)
+		if ch ==# "\t"
+			let tab_width = text_width - prev_text_width
+			" TODO: Apply hi-SpecialKey
+			let text .= s:emulate_tab(tab_width, tab)
+		else
+			let text .= ch
+		endif
+		let prev_text_width = text_width
 
 		" Move cursor to the next character
 		normal! l
@@ -108,6 +119,19 @@ endfunction
 
 function! s:concealed(lnum, col)
 	return synconcealed(a:lnum, a:col)[0]
+endfunction
+
+function! s:emulate_tab(width, tab)
+	let first = ' '
+	let second = ' '
+
+	let matches = matchlist(a:tab, '^\(.\)\(.\)$')
+	if !empty(matches)
+		let first = matches[1]
+		let second = matches[2]
+	endif
+
+	return first . repeat(second, a:width - 1)
 endfunction
 
 function! s:lnum_token(lnum)
