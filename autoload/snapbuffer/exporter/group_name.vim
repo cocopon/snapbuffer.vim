@@ -7,7 +7,7 @@ set cpo&vim
 
 
 function! snapbuffer#exporter#group_name#export(data)
-	let result = {}
+	let result = {'Normal': 1}
 
 	for tokens in a:data
 		for token in tokens
