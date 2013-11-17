@@ -79,8 +79,8 @@ endfunction
 
 
 function! s:emulate_lnum(lnum, max_lnum)
-	let max_len = strlen(string(a:max_lnum))
-	let pad = min([max_len - strlen(string(a:lnum)), 3])
+	let max_len = max([strlen(string(a:max_lnum)), 3])
+	let pad = max_len - strlen(string(a:lnum))
 	return repeat(' ', pad) . string(a:lnum) . ' '
 endfunction
 
