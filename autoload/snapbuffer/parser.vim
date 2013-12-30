@@ -16,6 +16,7 @@ function! snapbuffer#parser#new()
 		let self.listchars_ = s:parse_listchars()
 		let self.needs_number_ = &number
 		let self.needs_eol_ = (strlen(get(self.listchars_, 'eol', '')) > 0)
+		let self.needs_cursorline_ = &cursorline
 		let self.line_parser_ = snapbuffer#line_parser#new(self.listchars_)
 		let self.cursor_lnum_ = get(g:, 'snapbuffer_cursor_lnum', 0)
 	endfunction
@@ -34,13 +35,13 @@ function! snapbuffer#parser#new()
 		let lnum = 1
 		while lnum <= self.max_lnum_
 			let tokens = []
-			let is_cursor_line = (lnum == self.cursor_lnum_)
+			let highlight_line = (self.needs_cursorline_ && lnum == self.cursor_lnum_)
 
 			if self.needs_number_
 				let lnum_text = s:emulate_lnum(lnum, self.max_lnum_)
 				let token = snapbuffer#token#inline(
 							\ lnum_text,
-							\ (is_cursor_line ? 'CursorLineNr' : 'LineNr'))
+							\ (highlight_line ? 'CursorLineNr' : 'LineNr'))
 				call insert(tokens, token, 0)
 			endif
 
@@ -57,7 +58,7 @@ function! snapbuffer#parser#new()
 			endif
 
 			let line_token = snapbuffer#token#block(
-						\ (is_cursor_line ? 'CursorLine' : ''),
+						\ (highlight_line ? 'CursorLine' : ''),
 						\ tokens)
 			call add(result, line_token)
 
