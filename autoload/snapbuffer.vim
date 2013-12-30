@@ -27,6 +27,7 @@ function! snapbuffer#export(...)
 	new
 	call append(0, text)
 	set nomodified
+	set ft=html
 	normal! gg
 endfunction
 
