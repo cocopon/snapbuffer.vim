@@ -26,7 +26,7 @@ function! snapbuffer#line_parser#new(listchars)
 			return
 		endif
 
-		let token = snapbuffer#token#new(self.token_text_, self.cur_syn_)
+		let token = snapbuffer#token#inline(self.token_text_, self.cur_syn_)
 		call add(self.result_, token)
 	endfunction
 

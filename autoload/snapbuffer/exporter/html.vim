@@ -15,26 +15,49 @@ let s:special_chars = [
 
 
 function! snapbuffer#exporter#html#export(data)
-	let result = []
+	let result = ''
 
-	for tokens in a:data
-		let line = ''
-
-		for token in tokens
-			let line .= s:exporter_css_token(token)
-		endfor
-
-		call add(result, line)
+	for token in a:data
+		let line = s:css_token(token)
+		let result .= line
 	endfor
 
 	return result
 endfunction
 
-function! s:exporter_css_token(token)
-	let css = a:token.name
-	let text = s:escape(a:token.text)
-	return printf('<span class="%s">%s</span>', css, text)
+
+function! s:css_token(token)
+	let result = ''
+
+	if a:token.display ==# 'block'
+		let result .= '<div'
+	elseif a:token.display ==# 'inline'
+		let result .= '<span'
+	endif
+
+	if !empty(a:token.name)
+		let result .= printf(' class="%s"', a:token.name)
+	endif
+
+	let result .= '>'
+
+	if has_key(a:token, 'text')
+		let result .= s:escape(a:token.text)
+	elseif has_key(a:token, 'children')
+		for child in a:token.children
+			let result .= s:css_token(child)
+		endfor
+	endif
+
+	if a:token.display ==# 'block'
+		let result .= '</div>'
+	elseif a:token.display ==# 'inline'
+		let result .= '</span>'
+	endif
+
+	return result
 endfunction
+
 
 function! s:escape(text)
 	let text = a:text

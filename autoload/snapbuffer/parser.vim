@@ -17,6 +17,7 @@ function! snapbuffer#parser#new()
 		let self.needs_number_ = &number
 		let self.needs_eol_ = (strlen(get(self.listchars_, 'eol', '')) > 0)
 		let self.line_parser_ = snapbuffer#line_parser#new(self.listchars_)
+		let self.cursor_lnum_ = get(g:, 'snapbuffer_cursor_lnum', 0)
 	endfunction
 
 	function! parser.restore_() dict
@@ -33,25 +34,32 @@ function! snapbuffer#parser#new()
 		let lnum = 1
 		while lnum <= self.max_lnum_
 			let tokens = []
+			let is_cursor_line = (lnum == self.cursor_lnum_)
 
 			if self.needs_number_
 				let lnum_text = s:emulate_lnum(lnum, self.max_lnum_)
-				call insert(tokens, snapbuffer#token#new(lnum_text, 'LineNr'), 0)
+				let token = snapbuffer#token#inline(
+							\ lnum_text,
+							\ (is_cursor_line ? 'CursorLineNr' : 'LineNr'))
+				call insert(tokens, token, 0)
 			endif
 
 			if foldclosed(lnum) > 0
 				let fold_text = s:emulate_folding(lnum, max_col)
-				call add(tokens, snapbuffer#token#new(fold_text, 'Folded'))
+				call add(tokens, snapbuffer#token#inline(fold_text, 'Folded'))
 				let lnum = foldclosedend(lnum)
 			else
 				call extend(tokens, self.line_parser_.parse(lnum))
 
 				if self.needs_eol_
-					call add(tokens, snapbuffer#token#new(self.listchars_.eol, 'NonText'))
+					call add(tokens, snapbuffer#token#inline(self.listchars_.eol, 'NonText'))
 				endif
 			endif
 
-			call add(result, tokens)
+			let line_token = snapbuffer#token#block(
+						\ (is_cursor_line ? 'CursorLine' : ''),
+						\ tokens)
+			call add(result, line_token)
 
 			let lnum += 1
 		endwhile
