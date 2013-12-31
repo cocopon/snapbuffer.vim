@@ -28,15 +28,15 @@ endfunction
 
 
 function! snapbuffer#parser#prepare_() dict
-	" TODO: Save current settings
-	set conceallevel=1
-
+	let self.states_ = {
+				\ 	'pos': getpos('.')
+				\ }
 	let self.line_parser_ = snapbuffer#line_parser#new(self.env_)
 endfunction
 
 
 function! snapbuffer#parser#restore_() dict
-	" TODO: Implement
+	call setpos('.', self.states_.pos)
 endfunction
 
 

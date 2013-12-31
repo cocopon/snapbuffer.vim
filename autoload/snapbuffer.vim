@@ -9,15 +9,15 @@ set cpo&vim
 function! snapbuffer#export(...)
 	let env = snapbuffer#env#new()
   let parser = snapbuffer#parser#new(env)
+
 	let data = parser.parse()
 
-	let exporter = 'html'
-	if a:0 >= 1
-		let exporter = a:1
-	end
-
-	let func = printf('snapbuffer#exporter#%s#export', exporter)
 	try
+		let exporter = 'html'
+		if a:0 >= 1
+			let exporter = a:1
+		end
+		let func = printf('snapbuffer#exporter#%s#export', exporter)
 		let text = call(func, [data])
 	catch /:E117:/
 		" E117: Unknown function
