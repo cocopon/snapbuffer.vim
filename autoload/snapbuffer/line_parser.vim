@@ -53,7 +53,7 @@ endfunction
 
 
 function! snapbuffer#line_parser#publish_token_() dict
-	if strlen(self.token_text_) == 0
+	if empty(self.token_text_)
 		return
 	endif
 
@@ -69,7 +69,7 @@ endfunction
 
 
 function! snapbuffer#line_parser#parse(lnum) dict
-	if strlen(getline(a:lnum)) == 0
+	if empty(getline(a:lnum))
 		return []
 	endif
 

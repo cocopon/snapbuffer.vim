@@ -11,7 +11,7 @@ function! snapbuffer#exporter#group_name#export(data)
 
 	for tokens in a:data
 		for token in tokens
-			if strlen(token.name) == 0
+			if empty(token.name)
 				continue
 			endif
 
