@@ -13,8 +13,10 @@ let s:methods = [
 			\ ]
 
 
-function! snapbuffer#parser#new()
+function! snapbuffer#parser#new(env)
 	let parser = {}
+	let parser.env_ = a:env
+	let parser.cursor_visible_ = get(g:, 'snapbuffer_cursor_visible', 0)
 
 	call snapbuffer#util#setup_methods(
 				\ parser,
@@ -29,12 +31,7 @@ function! snapbuffer#parser#prepare_() dict
 	" TODO: Save current settings
 	set conceallevel=1
 
-	let self.listchars_ = s:parse_listchars()
-	let self.needs_number_ = &number
-	let self.needs_eol_ = (strlen(get(self.listchars_, 'eol', '')) > 0)
-	let self.needs_cursorline_ = &cursorline
-	let self.line_parser_ = snapbuffer#line_parser#new(self.listchars_)
-	let self.cursor_lnum_ = get(g:, 'snapbuffer_cursor_lnum', 0)
+	let self.line_parser_ = snapbuffer#line_parser#new(self.env_)
 endfunction
 
 
@@ -49,14 +46,16 @@ function! snapbuffer#parser#parse() dict
 
 	call self.prepare_()
 
-	let self.max_lnum_ = line('$')
+	let max_lnum = line('$')
 	let lnum = 1
-	while lnum <= self.max_lnum_
+	while lnum <= max_lnum
 		let tokens = []
-		let highlight_line = (self.needs_cursorline_ && lnum == self.cursor_lnum_)
+		let highlight_line = self.cursor_visible_
+					\ && self.env_.cursorline
+					\ && lnum == self.env_.cursor_lnum
 
-		if self.needs_number_
-			let lnum_text = s:emulate_lnum(lnum, self.max_lnum_)
+		if self.env_.number
+			let lnum_text = s:emulate_lnum(lnum, max_lnum)
 			let token = snapbuffer#token#inline(
 						\ lnum_text,
 						\ (highlight_line ? 'CursorLineNr' : 'LineNr'))
@@ -70,8 +69,8 @@ function! snapbuffer#parser#parse() dict
 		else
 			call extend(tokens, self.line_parser_.parse(lnum))
 
-			if self.needs_eol_
-				call add(tokens, snapbuffer#token#inline(self.listchars_.eol, 'NonText'))
+			if !empty(self.env_.listchar_eol)
+				call add(tokens, snapbuffer#token#inline(self.env_.listchar_eol, 'NonText'))
 			endif
 		endif
 
@@ -84,19 +83,6 @@ function! snapbuffer#parser#parse() dict
 	endwhile
 
 	call self.restore_()
-
-	return result
-endfunction
-
-
-function! s:parse_listchars()
-	let result = {}
-
-	let listchars = split(&listchars, ',')
-	for listchar in listchars
-		let comps = split(listchar, ':')
-		let result[comps[0]] = comps[1]
-	endfor
 
 	return result
 endfunction

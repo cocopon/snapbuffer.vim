@@ -7,7 +7,8 @@ set cpo&vim
 
 
 function! snapbuffer#export(...)
-  let parser = snapbuffer#parser#new()
+	let env = snapbuffer#env#new()
+  let parser = snapbuffer#parser#new(env)
 	let data = parser.parse()
 
 	let exporter = 'html'

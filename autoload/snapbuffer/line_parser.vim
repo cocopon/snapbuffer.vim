@@ -11,12 +11,14 @@ let s:methods = [
 			\ 	'prepare_for_next_syntax_',
 			\ 	'publish_token_',
 			\ 	'reset_',
+			\ 	'syn_name_',
 			\ ]
 
 
-function! snapbuffer#line_parser#new(listchars)
+function! snapbuffer#line_parser#new(env)
 	let parser = {}
-	let parser.listchars_ = a:listchars
+	let parser.env_ = a:env
+	let parser.cursor_visible_ = get(g:, 'snapbuffer_cursor_visible', 0)
 
 	call snapbuffer#util#setup_methods(
 				\ parser,
@@ -27,10 +29,22 @@ function! snapbuffer#line_parser#new(listchars)
 endfunction
 
 
+function! snapbuffer#line_parser#syn_name_(lnum, col) dict
+	if self.cursor_visible_
+		if self.env_.cursor_lnum == a:lnum
+					\ && self.env_.cursor_col == a:col
+			return 'Cursor'
+		endif
+	endif
+
+	return synIDattr(synID(a:lnum, a:col, 'gui'), 'name')
+endfunction
+
+
 function! snapbuffer#line_parser#reset_(lnum) dict
 	let self.result_ = []
 	let self.token_text_ = ''
-	let self.cur_syn_ = s:syn_name(a:lnum, 1)
+	let self.cur_syn_ = self.syn_name_(a:lnum, 1)
 
 	" Move cursor to beginning of the target line
 	execute printf('normal! %dG', a:lnum)
@@ -60,7 +74,7 @@ function! snapbuffer#line_parser#parse(lnum) dict
 	endif
 
 	call self.reset_(a:lnum)
-	let tab = get(self.listchars_, 'tab', '')
+	let tab = self.env_.listchar_tab
 	let prev_text_width = 0
 	let col = 1
 
@@ -73,7 +87,7 @@ function! snapbuffer#line_parser#parse(lnum) dict
 		if ch ==# "\t"
 			let syn = "SpecialKey"
 		else
-			let syn = s:syn_name(a:lnum, col)
+			let syn = self.syn_name_(a:lnum, col)
 		endif
 
 		if self.cur_syn_ != syn
@@ -118,11 +132,6 @@ function! s:emulate_tab(width, tab)
 	endif
 
 	return first . repeat(second, a:width - 1)
-endfunction
-
-
-function! s:syn_name(lnum, col)
-	return synIDattr(synID(a:lnum, a:col, 'gui'), 'name')
 endfunction
 
 
