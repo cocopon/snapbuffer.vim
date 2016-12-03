@@ -26,6 +26,11 @@ function! snapbuffer#exporter#html#export(data)
 endfunction
 
 
+function! snapbuffer#exporter#html#finish()
+	set ft=html
+endfunction
+
+
 function! s:css_token(token)
 	let result = ''
 

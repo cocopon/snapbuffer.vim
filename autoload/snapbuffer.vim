@@ -17,8 +17,8 @@ function! snapbuffer#export(...)
 		if a:0 >= 1
 			let exporter = a:1
 		end
-		let func = printf('snapbuffer#exporter#%s#export', exporter)
-		let text = call(func, [data])
+		let export_func = printf('snapbuffer#exporter#%s#export', exporter)
+		let text = call(export_func, [data])
 	catch /:E117:/
 		" E117: Unknown function
 		echoerr printf('Exporter not found: %s', exporter)
@@ -28,8 +28,9 @@ function! snapbuffer#export(...)
 	new
 	call append(0, text)
 	set nomodified
-	set ft=html
 	normal! gg
+	let finish_func = printf('snapbuffer#exporter#%s#finish', exporter)
+	call function(finish_func)()
 endfunction
 
 

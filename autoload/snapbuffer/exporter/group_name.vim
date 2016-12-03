@@ -23,5 +23,9 @@ function! snapbuffer#exporter#group_name#export(data)
 endfunction
 
 
+function! snapbuffer#exporter#group_name#finish()
+endfunction
+
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
