@@ -8,6 +8,8 @@ set cpo&vim
 
 let s:methods = [
 			\ 	'parse',
+			\ 	'parse_empty_line_',
+			\ 	'parse_line_',
 			\ 	'prepare_',
 			\ 	'restore_',
 			\ ]
@@ -40,6 +42,31 @@ function! snapbuffer#parser#restore_() dict
 endfunction
 
 
+function! snapbuffer#parser#parse_line_(tokens, lnum) dict
+	call extend(a:tokens, self.line_parser_.parse(a:lnum))
+
+	if !empty(self.env_.listchar_eol)
+		call add(a:tokens, snapbuffer#token#inline(self.env_.listchar_eol, 'NonText'))
+	endif
+endfunction
+
+
+function! snapbuffer#parser#parse_empty_line_(tokens, lnum) dict
+	let listchar_eol = self.env_.listchar_eol
+
+	if self.cursor_visible_ && self.env_.cursor_lnum == a:lnum
+		let cursor_token = snapbuffer#token#inline(
+					\ !empty(listchar_eol) ? listchar_eol : ' ',
+					\ 'Cursor')
+		call add(a:tokens, cursor_token)
+	else
+		if !empty(listchar_eol)
+			call add(a:tokens, snapbuffer#token#inline(listchar_eol, 'NonText'))
+		endif
+	endif
+endfunction
+
+
 function! snapbuffer#parser#parse() dict
 	let max_col = winwidth(0)
 	let result = []
@@ -67,10 +94,10 @@ function! snapbuffer#parser#parse() dict
 			call add(tokens, snapbuffer#token#inline(fold_text, 'Folded'))
 			let lnum = foldclosedend(lnum)
 		else
-			call extend(tokens, self.line_parser_.parse(lnum))
-
-			if !empty(self.env_.listchar_eol)
-				call add(tokens, snapbuffer#token#inline(self.env_.listchar_eol, 'NonText'))
+			if !empty(getline(lnum))
+				call self.parse_line_(tokens, lnum)
+			else
+				call self.parse_empty_line_(tokens, lnum)
 			endif
 		endif
 
