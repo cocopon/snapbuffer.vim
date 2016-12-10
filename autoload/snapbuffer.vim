@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! snapbuffer#export(...)
+function! snapbuffer#export(...) abort
 	let env = snapbuffer#env#new()
   let parser = snapbuffer#parser#new(env)
 

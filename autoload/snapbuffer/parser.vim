@@ -15,7 +15,7 @@ let s:methods = [
 			\ ]
 
 
-function! snapbuffer#parser#new(env)
+function! snapbuffer#parser#new(env) abort
 	let parser = {}
 	let parser.env_ = a:env
 	let parser.cursor_visible_ = get(g:, 'snapbuffer_cursor_visible', 0)
@@ -29,7 +29,7 @@ function! snapbuffer#parser#new(env)
 endfunction
 
 
-function! snapbuffer#parser#prepare_() dict
+function! snapbuffer#parser#prepare_() abort dict
 	let self.states_ = {
 				\ 	'pos': getpos('.')
 				\ }
@@ -37,12 +37,12 @@ function! snapbuffer#parser#prepare_() dict
 endfunction
 
 
-function! snapbuffer#parser#restore_() dict
+function! snapbuffer#parser#restore_() abort dict
 	call setpos('.', self.states_.pos)
 endfunction
 
 
-function! snapbuffer#parser#parse_line_(tokens, lnum) dict
+function! snapbuffer#parser#parse_line_(tokens, lnum) abort dict
 	call extend(a:tokens, self.line_parser_.parse(a:lnum))
 
 	if !empty(self.env_.listchar_eol)
@@ -51,7 +51,7 @@ function! snapbuffer#parser#parse_line_(tokens, lnum) dict
 endfunction
 
 
-function! snapbuffer#parser#parse_empty_line_(tokens, lnum) dict
+function! snapbuffer#parser#parse_empty_line_(tokens, lnum) abort dict
 	let listchar_eol = self.env_.listchar_eol
 
 	if self.cursor_visible_ && self.env_.cursor_lnum == a:lnum
@@ -67,7 +67,7 @@ function! snapbuffer#parser#parse_empty_line_(tokens, lnum) dict
 endfunction
 
 
-function! snapbuffer#parser#parse() dict
+function! snapbuffer#parser#parse() abort dict
 	let max_col = winwidth(0)
 	let result = []
 
@@ -115,14 +115,14 @@ function! snapbuffer#parser#parse() dict
 endfunction
 
 
-function! s:emulate_lnum(lnum, max_lnum)
+function! s:emulate_lnum(lnum, max_lnum) abort
 	let max_len = max([strlen(string(a:max_lnum)), 3])
 	let pad = max_len - strlen(string(a:lnum))
 	return repeat(' ', pad) . string(a:lnum) . ' '
 endfunction
 
 
-function! s:emulate_folding(lnum, max_col)
+function! s:emulate_folding(lnum, max_col) abort
 	let fold_text = foldtextresult(a:lnum)
 	let separator = repeat('-', a:max_col - strdisplaywidth(fold_text))
 	return fold_text . separator

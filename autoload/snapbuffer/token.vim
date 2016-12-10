@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! snapbuffer#token#inline(text, name)
+function! snapbuffer#token#inline(text, name) abort
 	return {
 				\ 	'display': 'inline',
 				\ 	'text': a:text,
@@ -15,7 +15,7 @@ function! snapbuffer#token#inline(text, name)
 endfunction
 
 
-function! snapbuffer#token#block(name, children)
+function! snapbuffer#token#block(name, children) abort
 	return {
 				\ 	'display': 'block',
 				\ 	'children': a:children,

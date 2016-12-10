@@ -10,7 +10,7 @@ let s:V = vital#snapbuffer#new()
 call s:V.load('Web.JSON')
 
 
-function! snapbuffer#exporter#json#export(data)
+function! snapbuffer#exporter#json#export(data) abort
 	let result = []
 
 	for token in a:data
@@ -21,12 +21,12 @@ function! snapbuffer#exporter#json#export(data)
 endfunction
 
 
-function! snapbuffer#exporter#json#finish()
+function! snapbuffer#exporter#json#finish() abort
 	set ft=json
 endfunction
 
 
-function! s:export_token(token)
+function! s:export_token(token) abort
 	let result = {}
 
 	let result['display'] = a:token.display

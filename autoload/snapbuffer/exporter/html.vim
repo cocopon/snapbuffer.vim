@@ -14,7 +14,7 @@ let s:special_chars = [
 			\ ]
 
 
-function! snapbuffer#exporter#html#export(data)
+function! snapbuffer#exporter#html#export(data) abort
 	let result = ''
 
 	for token in a:data
@@ -26,12 +26,12 @@ function! snapbuffer#exporter#html#export(data)
 endfunction
 
 
-function! snapbuffer#exporter#html#finish()
+function! snapbuffer#exporter#html#finish() abort
 	set ft=html
 endfunction
 
 
-function! s:css_token(token)
+function! s:css_token(token) abort
 	let result = ''
 
 	if a:token.display ==# 'block'
@@ -64,7 +64,7 @@ function! s:css_token(token)
 endfunction
 
 
-function! s:escape(text)
+function! s:escape(text) abort
 	let text = a:text
 
 	for pair in s:special_chars

@@ -15,7 +15,7 @@ let s:methods = [
 			\ ]
 
 
-function! snapbuffer#line_parser#new(env)
+function! snapbuffer#line_parser#new(env) abort
 	let parser = {}
 	let parser.env_ = a:env
 	let parser.cursor_visible_ = get(g:, 'snapbuffer_cursor_visible', 0)
@@ -29,7 +29,7 @@ function! snapbuffer#line_parser#new(env)
 endfunction
 
 
-function! snapbuffer#line_parser#syn_name_(lnum, col) dict
+function! snapbuffer#line_parser#syn_name_(lnum, col) abort dict
 	if self.cursor_visible_
 		if self.env_.cursor_lnum == a:lnum
 					\ && self.env_.cursor_col == a:col
@@ -41,7 +41,7 @@ function! snapbuffer#line_parser#syn_name_(lnum, col) dict
 endfunction
 
 
-function! snapbuffer#line_parser#reset_(lnum) dict
+function! snapbuffer#line_parser#reset_(lnum) abort dict
 	let self.result_ = []
 	let self.token_text_ = ''
 	let self.cur_syn_ = self.syn_name_(a:lnum, 1)
@@ -52,7 +52,7 @@ function! snapbuffer#line_parser#reset_(lnum) dict
 endfunction
 
 
-function! snapbuffer#line_parser#publish_token_() dict
+function! snapbuffer#line_parser#publish_token_() abort dict
 	if empty(self.token_text_)
 		return
 	endif
@@ -62,13 +62,13 @@ function! snapbuffer#line_parser#publish_token_() dict
 endfunction
 
 
-function! snapbuffer#line_parser#prepare_for_next_syntax_(syntax) dict
+function! snapbuffer#line_parser#prepare_for_next_syntax_(syntax) abort dict
 	let self.cur_syn_ = a:syntax
 	let self.token_text_ = ''
 endfunction
 
 
-function! snapbuffer#line_parser#parse(lnum) dict
+function! snapbuffer#line_parser#parse(lnum) abort dict
 	if empty(getline(a:lnum))
 		return []
 	endif
@@ -85,7 +85,7 @@ function! snapbuffer#line_parser#parse(lnum) dict
 
 		" Check a syntax boundary
 		if ch ==# "\t"
-			let syn = "SpecialKey"
+			let syn = 'SpecialKey'
 		else
 			let syn = self.syn_name_(a:lnum, col)
 		endif
@@ -121,7 +121,7 @@ function! snapbuffer#line_parser#parse(lnum) dict
 endfunction
 
 
-function! s:emulate_tab(width, tab)
+function! s:emulate_tab(width, tab) abort
 	let first = ' '
 	let second = ' '
 
@@ -135,7 +135,7 @@ function! s:emulate_tab(width, tab)
 endfunction
 
 
-function! s:concealed(lnum, col)
+function! s:concealed(lnum, col) abort
 	return synconcealed(a:lnum, a:col)[0]
 endfunction
 

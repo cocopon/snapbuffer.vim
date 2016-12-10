@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! snapbuffer#env#new()
+function! snapbuffer#env#new() abort
 	let env = {}
 
 	" cursor
@@ -24,7 +24,7 @@ function! snapbuffer#env#new()
 endfunction
 
 
-function! s:parse_listchars()
+function! s:parse_listchars() abort
 	let result = {}
 
 	let listchars = split(&listchars, ',')

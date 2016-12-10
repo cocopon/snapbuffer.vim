@@ -6,7 +6,7 @@ let s:save_cpo = &cpo
 set cpo&vim
 
 
-function! snapbuffer#exporter#group_name#export(data)
+function! snapbuffer#exporter#group_name#export(data) abort
 	let result = {'Normal': 1}
 
 	for tokens in a:data
@@ -23,7 +23,7 @@ function! snapbuffer#exporter#group_name#export(data)
 endfunction
 
 
-function! snapbuffer#exporter#group_name#finish()
+function! snapbuffer#exporter#group_name#finish() abort
 endfunction
 
 
